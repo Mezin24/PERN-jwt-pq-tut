@@ -2,9 +2,11 @@ const router = require('express').Router();
 const pool = require('../db');
 const bcrypt = require('bcrypt');
 const jwtGenerator = require('../utils/jwtGenerator');
+const validInfo = require('../middleware/validationInfo');
+const authorization = require('../middleware/authorization');
 
 // REGISTER route
-router.post('/register', async (req, res) => {
+router.post('/register', validInfo, async (req, res) => {
   try {
     // 1. Get user info
     const { name, email, password } = req.body;
@@ -41,31 +43,44 @@ router.post('/register', async (req, res) => {
 
 // LOGIN route
 
-router.post('/login', async (req, res) => {
-  // 1. destructure the req.body
-  const { email, password } = req.body;
-  // 2. check if user doesn't exist (if not then we throw error)
-  const user = await pool.query('SELECT * FROM users WHERE user_email = $1', [
-    email,
-  ]);
+router.post('/login', validInfo, async (req, res) => {
+  try {
+    // 1. destructure the req.body
+    const { email, password } = req.body;
+    // 2. check if user doesn't exist (if not then we throw error)
+    const user = await pool.query('SELECT * FROM users WHERE user_email = $1', [
+      email,
+    ]);
 
-  if (!user.rows[0]) {
-    res.status(404).json({ message: "Such user doesn't exist" });
-  }
-  // 3. check if incoming password is the same the database password
-  const checkPassword = await bcrypt.compare(
-    password,
-    user.rows[0].user_password
-  );
+    if (user.rows.length === 0) {
+      res.status(401).json({ message: "Such user doesn't exist" });
+    }
+    // 3. check if incoming password is the same the database password
+    const checkPassword = await bcrypt.compare(
+      password,
+      user.rows[0].user_password
+    );
 
-  if (!checkPassword) {
-    res.status(404).json({
-      message: 'Invalid password',
-    });
+    if (!checkPassword) {
+      res.status(401).json({
+        message: 'Invalid password or email',
+      });
+    }
+    // 4. give them the jwt token
+    const token = jwtGenerator(user.rows[0].user_id);
+    res.json({ token });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
   }
-  // 4. give them the jwt token
-  const token = jwtGenerator(user.rows[0].user_id);
-  res.json({ token });
+});
+
+router.get('/is-verify', authorization, async (req, res) => {
+  console.log('verify');
+  try {
+    res.status(200).send(true);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 module.exports = router;
