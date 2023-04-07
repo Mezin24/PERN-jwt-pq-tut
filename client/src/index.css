@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container {
+  @apply max-w-lg mx-auto;
+}
+.form-input {
+  @apply w-full p-1 px-2 mt-5 border rounded-md focus:bg-slate-100 focus:outline-none;
+}
+
+.btn {
+  @apply p-1 rounded-md hover:grayscale-[40%] duration-200 text-lg;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white;
+}
+
+.btn-success {
+  @apply bg-green-600 text-white;
+}

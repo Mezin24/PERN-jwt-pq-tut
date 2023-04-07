@@ -75,7 +75,6 @@ router.post('/login', validInfo, async (req, res) => {
 });
 
 router.get('/is-verify', authorization, async (req, res) => {
-  console.log('verify');
   try {
     res.status(200).send(true);
   } catch (error) {
