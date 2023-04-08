@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { logout } from '../features/user/userSlice';
+import { toast } from 'react-toastify';
 
 const Dashboard = () => {
   const [name, setName] = useState(null);
@@ -28,6 +29,7 @@ const Dashboard = () => {
   const onLogout = () => {
     localStorage.removeItem('token');
     dispatch(logout());
+    toast.success('Logged out successfully');
   };
   return (
     <>

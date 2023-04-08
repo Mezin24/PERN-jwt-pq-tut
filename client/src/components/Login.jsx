@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { authenticated } from '../features/user/userSlice';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const initialState = {
   email: '',
@@ -30,10 +31,13 @@ const Login = () => {
         email,
         password,
       });
-      localStorage.setItem('token', data.token);
-      dispatch(authenticated());
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        dispatch(authenticated());
+        toast.success('login successfully');
+      }
     } catch (error) {
-      console.log(error.message);
+      toast.error(error.response.data);
     }
   };
 

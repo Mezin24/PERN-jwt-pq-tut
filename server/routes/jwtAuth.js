@@ -53,7 +53,7 @@ router.post('/login', validInfo, async (req, res) => {
     ]);
 
     if (user.rows.length === 0) {
-      res.status(401).json({ message: "Such user doesn't exist" });
+      return res.status(401).json("Such user doesn't exist");
     }
     // 3. check if incoming password is the same the database password
     const checkPassword = await bcrypt.compare(
@@ -62,15 +62,13 @@ router.post('/login', validInfo, async (req, res) => {
     );
 
     if (!checkPassword) {
-      res.status(401).json({
-        message: 'Invalid password or email',
-      });
+      return res.status(401).json('Invalid password or email');
     }
     // 4. give them the jwt token
     const token = jwtGenerator(user.rows[0].user_id);
-    res.json({ token });
+    return res.json({ token });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json('Server error');
   }
 });
 
@@ -78,7 +76,7 @@ router.get('/is-verify', authorization, async (req, res) => {
   try {
     res.status(200).send(true);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json('Server error');
   }
 });
 

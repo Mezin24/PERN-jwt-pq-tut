@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { authenticated } from '../features/user/userSlice';
+import { authenticated, logout } from '../features/user/userSlice';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const initialState = {
   email: '',
@@ -32,10 +33,18 @@ const Register = () => {
         password,
         name,
       });
-      localStorage.setItem('token', data.token);
-      dispatch(authenticated());
+
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        dispatch(authenticated());
+        toast.success('Registered successfully');
+      } else {
+        dispatch(logout());
+        toast.error('Some problems with registration');
+      }
     } catch (error) {
-      console.log(error.message);
+      console.log(error.response.data);
+      toast.error(error.response.data);
     }
   };
 
